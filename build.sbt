@@ -17,6 +17,8 @@ lazy val commonSettings = Seq(
   publishTo in ThisBuild := Some("envisia-internal" at "https://nexus.envisia.de/repository/internal/")
 )
 
+val pdfBoxVersion = "2.0.7"
+
 lazy val `html-to-pdf-core` = (project in file("html-to-pdf-core"))
     .settings(commonSettings)
 
@@ -25,7 +27,7 @@ lazy val `html-to-pdf-pdfbox` = (project in file("html-to-pdf-pdfbox"))
     .settings(
       libraryDependencies ++= Seq(
         "de.rototor.pdfbox" % "graphics2d" % "0.3",
-        "org.apache.pdfbox" % "pdfbox" % "2.0.5"
+        "org.apache.pdfbox" % "pdfbox" % pdfBoxVersion
       )
     )
     .dependsOn(`html-to-pdf-core`)

@@ -621,7 +621,7 @@ public class PdfBoxRenderer {
         PDDocumentInformation info = new PDDocumentInformation();
 
         info.setCreationDate(Calendar.getInstance());
-        info.setProducer("openhtmltopdf.com");
+        info.setProducer("envisia GmbH");
 
         for (Metadata metadata : _outputDevice.getMetadata()) {
             String name = metadata.getName();
