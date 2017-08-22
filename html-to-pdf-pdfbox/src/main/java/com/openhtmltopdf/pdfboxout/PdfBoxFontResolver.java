@@ -38,15 +38,10 @@ import org.apache.fontbox.ttf.TrueTypeCollection;
 import org.apache.fontbox.ttf.TrueTypeCollection.TrueTypeFontProcessor;
 import org.apache.fontbox.ttf.TrueTypeFont;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDFontDescriptor;
-import org.apache.pdfbox.pdmodel.font.PDType0Font;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.font.*;
+import org.apache.pdfbox.pdmodel.font.encoding.WinAnsiEncoding;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -158,8 +153,7 @@ public class PdfBoxFontResolver implements FontResolver {
                         Integer fontWeightOverride, IdentValue fontStyleOverride, boolean subset) throws IOException {
 
 
-        PDFont font = PDType0Font.load(_doc, trueTypeFont, subset);
-
+        PDFont font = PDTrueTypeFont.load(_doc, trueTypeFont, WinAnsiEncoding.INSTANCE);
         addFont(font, fontFamilyNameOverride, fontWeightOverride, fontStyleOverride, subset);
     }
 
@@ -235,7 +229,7 @@ public class PdfBoxFontResolver implements FontResolver {
 		/*
 		 * We load the font using the file.
 		 */
-		addFont(PDType0Font.load(_doc, fontFile), fontFamilyNameOverride, fontWeightOverride, fontStyleOverride, subset);
+		addFont(PDTrueTypeFont.load(_doc, fontFile, WinAnsiEncoding.INSTANCE), fontFamilyNameOverride, fontWeightOverride, fontStyleOverride, subset);
 	}
 
 
@@ -561,7 +555,7 @@ public class PdfBoxFontResolver implements FontResolver {
                 }
                 
                 try {
-                    _font = PDType0Font.load(_doc, is, subset);
+                    _font = PDTrueTypeFont.load(_doc, is, WinAnsiEncoding.INSTANCE);
                 } catch (IOException e) {
                     XRLog.exception("Couldn't load font. Please check that it is a valid truetype font.");
                     return false;
