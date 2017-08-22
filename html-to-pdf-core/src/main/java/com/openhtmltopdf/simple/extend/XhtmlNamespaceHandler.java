@@ -67,6 +67,8 @@ public class XhtmlNamespaceHandler extends XhtmlCssOnlyNamespaceHandler {
         	return applyTextareaStyles(e);
         } else if (e.getNodeName().equals("input")) {
         	return applyInputStyles(e);
+        } else if (e.getNodeName().equals("barcode128")) {
+            return applyInputStyles(e);
         }
         
         return "";

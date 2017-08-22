@@ -44,17 +44,6 @@ public class Zipper {
         }
     }
 
-    public static void main(String[] args) {
-        File sourceDir = getSourceDir(args);
-        File outputFile = new File(System.getProperty("user.home") + File.separator + sourceDir.getName() + ".zip");
-        try {
-            new Zipper(sourceDir, outputFile).zipDirectory();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Created zip file " + outputFile.getPath());
-    }
-
     public File zipDirectory() throws IOException {
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(outputFile));
         recurseAndZip(sourceDir, zos);

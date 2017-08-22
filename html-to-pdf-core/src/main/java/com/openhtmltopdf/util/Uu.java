@@ -114,19 +114,6 @@ public class Uu extends Util {
 
     /**
      * Description of the Method
-     *
-     * @param args PARAM
-     */
-    public static void main(String args[]) {
-        try {
-            Uu.p(new Object());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    /**
-     * Description of the Method
      */
     private static void init() {
         if (util == null) {

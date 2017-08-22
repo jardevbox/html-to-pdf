@@ -700,26 +700,6 @@ public class Configuration {
         return l.iterator();
     }
 
-
-    /**
-     * Command-line execution for testing. No arguments.
-     *
-     * @param args Ignored
-     */
-    public static void main(String args[]) {
-        try {
-            System.out.println("byte: " + String.valueOf(Configuration.valueAsByte("xr.test-config-byte", (byte) 15)));
-            System.out.println("short: " + String.valueOf(Configuration.valueAsShort("xr.test-config-short", (short) 20)));
-            System.out.println("int: " + String.valueOf(Configuration.valueAsInt("xr.test-config-int", 25)));
-            System.out.println("long: " + String.valueOf(Configuration.valueAsLong("xr.test-config-long", 30L)));
-            System.out.println("float: " + String.valueOf(Configuration.valueAsFloat("xr.test-config-float", 45.5F)));
-            System.out.println("double: " + String.valueOf(Configuration.valueAsDouble("xr.test-config-double", 50.75D)));
-            System.out.println("boolean: " + String.valueOf(Configuration.isTrue("xr.test-config-boolean", false)));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
     /**
      * Returns true if the value is "true" (ignores case), or the default
      * provided value if not found or if the value is not a valid boolean (true

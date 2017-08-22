@@ -59,7 +59,7 @@ public class FSEntityResolver implements EntityResolver {
      */
     private static FSEntityResolver instance;
 
-    private final Map entities = new HashMap();
+    private final Map<String, String> entities = new HashMap<>();
 
     // fill the list of URLs
     /**
@@ -145,7 +145,7 @@ public class FSEntityResolver implements EntityResolver {
      * @return a map of entities parsed by this resolver. 
      */
     public Map getEntities() {
-        return new HashMap(entities);
+        return new HashMap<>(entities);
     }
 }
 
