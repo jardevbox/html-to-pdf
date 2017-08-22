@@ -1032,6 +1032,14 @@ public class CalculatedStyle {
     public boolean isListItem() {
         return isIdent(CSSName.DISPLAY, IdentValue.LIST_ITEM);
     }
+    
+    public boolean hasColumns() {
+    	return !isIdent(CSSName.COLUMN_COUNT, IdentValue.AUTO) && asFloat(CSSName.COLUMN_COUNT) > 1;
+    }
+    
+    public int columnCount() {
+    	return (int) asFloat(CSSName.COLUMN_COUNT);
+    }
 
 	/**
      * Determine if the element is visible. This is normaly the case
@@ -1149,7 +1157,10 @@ public class CalculatedStyle {
     }
 
     public boolean isCollapseBorders() {
-        return isIdent(CSSName.BORDER_COLLAPSE, IdentValue.COLLAPSE) && ! isPaginateTable();
+    	// The second part of this condition was commented out by @danfickle because seems unneccessary
+    	// See https://github.com/danfickle/openhtmltopdf/issues/97
+    	
+        return isIdent(CSSName.BORDER_COLLAPSE, IdentValue.COLLAPSE); // && ! isPaginateTable();
     }
 
     public int getBorderHSpacing(CssContext c) {
