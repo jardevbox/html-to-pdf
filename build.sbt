@@ -18,14 +18,25 @@ lazy val commonSettings = Seq(
 )
 
 val pdfBoxVersion = "2.0.7"
+val zxingVersion = "3.3.0"
+val jsoupVersion = "1.10.3"
 
 lazy val `html-to-pdf-core` = (project in file("html-to-pdf-core"))
     .settings(commonSettings)
+
+lazy val `html-to-pdf-jsoup` = (project in file("html-to-pdf-jsoup"))
+    .settings(commonSettings)
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.jsoup" % "jsoup" % jsoupVersion
+      )
+    )
 
 lazy val `html-to-pdf-pdfbox` = (project in file("html-to-pdf-pdfbox"))
     .settings(commonSettings)
     .settings(
       libraryDependencies ++= Seq(
+        "com.google.zxing" % "core" % "3.3.0", // Barcode Support
         "de.rototor.pdfbox" % "graphics2d" % "0.3",
         "org.apache.pdfbox" % "pdfbox" % pdfBoxVersion
       )
@@ -35,6 +46,7 @@ lazy val `html-to-pdf-pdfbox` = (project in file("html-to-pdf-pdfbox"))
 lazy val `html-to-pdf-root` = (project in file("."))
     .aggregate(
       `html-to-pdf-core`,
-      `html-to-pdf-pdfbox`
+      `html-to-pdf-pdfbox`,
+      `html-to-pdf-jsoup`
     )
 
