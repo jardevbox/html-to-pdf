@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 public class PdfRendererBuilder
@@ -55,14 +56,14 @@ public class PdfRendererBuilder
     private FSObjectDrawerFactory _objectDrawerFactory;
     
     private static class AddedFont {
-        private final FSSupplier<InputStream> supplier;
+        private final Supplier<InputStream> supplier;
         private final File fontFile;
         private final Integer weight;
         private final String family;
         private final boolean subset;
         private final FontStyle style;
         
-        private AddedFont(FSSupplier<InputStream> supplier, File fontFile, Integer weight, String family, boolean subset, FontStyle style) {
+        private AddedFont(Supplier<InputStream> supplier, File fontFile, Integer weight, String family, boolean subset, FontStyle style) {
             this.supplier = supplier;
             this.fontFile = fontFile;
             this.weight = weight;
@@ -388,23 +389,23 @@ public class PdfRendererBuilder
      * @param subset
      * @return
      */
-    public PdfRendererBuilder useFont(FSSupplier<InputStream> supplier, String fontFamily, Integer fontWeight, FontStyle fontStyle, boolean subset) {
+    public PdfRendererBuilder useFont(Supplier<InputStream> supplier, String fontFamily, Integer fontWeight, FontStyle fontStyle, boolean subset) {
         this._fonts.add(new AddedFont(supplier, null, fontWeight, fontFamily, subset, fontStyle));
         return this;
     }
     
     /**
-     * Simpler overload for {@link #useFont(FSSupplier, String, Integer, FontStyle, boolean)}
+     * Simpler overload for {@link #useFont(Supplier, String, Integer, FontStyle, boolean)}
      * @param supplier
      * @param fontFamily
      * @return
      */
-    public PdfRendererBuilder useFont(FSSupplier<InputStream> supplier, String fontFamily) {
+    public PdfRendererBuilder useFont(Supplier<InputStream> supplier, String fontFamily) {
         return this.useFont(supplier, fontFamily, 400, FontStyle.NORMAL, true);
     }
 
     /**
-     * Like {@link #useFont(FSSupplier, String, Integer, FontStyle, boolean)}, but allows to supply a font file. If the font file
+     * Like {@link #useFont(Supplier, String, Integer, FontStyle, boolean)}, but allows to supply a font file. If the font file
      * is a .ttc file it is handled as TrueTypeCollection. If you have the font in file form you should use this API.
      */
     public PdfRendererBuilder useFont(File fontFile, String fontFamily, Integer fontWeight, FontStyle fontStyle, boolean subset) {

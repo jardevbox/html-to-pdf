@@ -25,7 +25,6 @@ import com.openhtmltopdf.css.sheet.FontFaceRule;
 import com.openhtmltopdf.css.style.CalculatedStyle;
 import com.openhtmltopdf.css.style.FSDerivedValue;
 import com.openhtmltopdf.css.value.FontSpecification;
-import com.openhtmltopdf.extend.FSSupplier;
 import com.openhtmltopdf.extend.FontResolver;
 import com.openhtmltopdf.layout.SharedContext;
 import com.openhtmltopdf.outputdevice.helper.FontFaceFontSupplier;
@@ -43,6 +42,7 @@ import org.apache.pdfbox.pdmodel.font.encoding.WinAnsiEncoding;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 /**
@@ -190,10 +190,10 @@ public class PdfBoxFontResolver implements FontResolver {
 	/**
 	 * Add fonts using a .ttc TrueTypeCollection
 	 */
-	public void addFontCollection(FSSupplier<InputStream> supplier, final String fontFamilyNameOverride,
+	public void addFontCollection(Supplier<InputStream> supplier, final String fontFamilyNameOverride,
 			final Integer fontWeightOverride, final IdentValue fontStyleOverride, final boolean subset)
 			throws IOException {
-		InputStream inputStream = supplier.supply();
+		InputStream inputStream = supplier.get();
 		try {
 			TrueTypeCollection collection = new TrueTypeCollection(inputStream);
 			addFontCollection(collection, fontFamilyNameOverride, fontWeightOverride, fontStyleOverride, subset);
@@ -236,9 +236,9 @@ public class PdfBoxFontResolver implements FontResolver {
 	/**
 	 * Add a font using a InputStream. The given file must be a TrueType Font
 	 * (.ttf). If you know the underlying stream is a .ttc file you should use
-	 * {@link #addFontCollection(FSSupplier, String, Integer, IdentValue, boolean)}
+	 * {@link #addFontCollection(Supplier, String, Integer, IdentValue, boolean)}
 	 */
-	public void addFont(FSSupplier<InputStream> supplier, String fontFamilyNameOverride, Integer fontWeightOverride,
+	public void addFont(Supplier<InputStream> supplier, String fontFamilyNameOverride, Integer fontWeightOverride,
 			IdentValue fontStyleOverride, boolean subset) {
 		FontFamily<FontDescription> fontFamily = getFontFamily(fontFamilyNameOverride);
 
@@ -256,8 +256,8 @@ public class PdfBoxFontResolver implements FontResolver {
     private void addFontFaceFont(
             String fontFamilyNameOverride, IdentValue fontWeightOverride, IdentValue fontStyleOverride,
             String uri, boolean subset) {
-        
-        FSSupplier<InputStream> fontSupplier = new FontFaceFontSupplier(_sharedContext, uri);
+
+        Supplier<InputStream> fontSupplier = new FontFaceFontSupplier(_sharedContext, uri);
         FontFamily<FontDescription> fontFamily = getFontFamily(fontFamilyNameOverride);
         FontDescription descr = new FontDescription(
                  _doc,
@@ -510,7 +510,7 @@ public class PdfBoxFontResolver implements FontResolver {
         private final int _weight;
         private final PDDocument _doc;
 
-        private FSSupplier<InputStream> _supplier;
+        private Supplier<InputStream> _supplier;
         private PDFont _font;
 
         private float _underlinePosition;
@@ -529,7 +529,7 @@ public class PdfBoxFontResolver implements FontResolver {
             this(doc, font, IdentValue.NORMAL, 400);
         }
         
-        private FontDescription(PDDocument doc, FSSupplier<InputStream> supplier, int weight, IdentValue style) {
+        private FontDescription(PDDocument doc, Supplier<InputStream> supplier, int weight, IdentValue style) {
             this._supplier = supplier;
             this._weight = weight;
             this._style = style;
@@ -547,7 +547,7 @@ public class PdfBoxFontResolver implements FontResolver {
         
         private boolean realizeFont(boolean subset) {
             if (_font == null && _supplier != null) {
-                InputStream is = _supplier.supply();
+                InputStream is = _supplier.get();
                 _supplier = null; // We only try once.
                 
                 if (is == null) {
