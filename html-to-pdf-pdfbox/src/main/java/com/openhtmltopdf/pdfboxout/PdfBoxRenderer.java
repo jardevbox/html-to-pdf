@@ -43,7 +43,6 @@ import com.openhtmltopdf.simple.extend.XhtmlNamespaceHandler;
 import com.openhtmltopdf.util.Configuration;
 import com.openhtmltopdf.util.ThreadCtx;
 import com.openhtmltopdf.util.XRLog;
-
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -59,7 +58,6 @@ import org.xml.sax.InputSource;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.io.*;
@@ -82,19 +80,19 @@ public class PdfBoxRenderer {
     private final float _dotsPerPoint;
 
     private PDDocument _pdfDoc;
-    
+
     private PDEncryption _pdfEncryption;
 
     // Usually 1.7
     private float _pdfVersion;
-    
+
     private boolean _testMode;
 
     private PDFCreationListener _listener;
-    
+
     private OutputStream _os;
     private SVGDrawer _svgImpl;
-    
+
     private BidiSplitterFactory _splitterFactory;
     private byte _defaultTextDirection = BidiSplitter.LTR;
     private BidiReorderer _reorderer;
@@ -109,7 +107,6 @@ public class PdfBoxRenderer {
     }
 
     /**
-     * @deprecated Please use the builder.
      * @param dotsPerPoint
      * @param dotsPerPixel
      * @param useSubsets
@@ -118,6 +115,7 @@ public class PdfBoxRenderer {
      * @param _resolver
      * @param _cache
      * @param svgImpl
+     * @deprecated Please use the builder.
      */
     @Deprecated
     public PdfBoxRenderer(float dotsPerPoint, int dotsPerPixel, boolean useSubsets, boolean testMode, HttpStreamFactory factory, FSUriResolver _resolver, FSCache _cache, SVGDrawer svgImpl) {
@@ -127,24 +125,24 @@ public class PdfBoxRenderer {
         _testMode = testMode;
         _outputDevice = new PdfBoxOutputDevice(dotsPerPoint, testMode);
         _outputDevice.setWriter(_pdfDoc);
-        
+
         PdfBoxUserAgent userAgent = new PdfBoxUserAgent(_outputDevice);
 
         if (factory != null) {
             userAgent.setHttpStreamFactory(factory);
         }
-        
+
         if (_resolver != null) {
             userAgent.setUriResolver(_resolver);
         }
-        
+
         if (_cache != null) {
             userAgent.setExternalCache(_cache);
         }
-        
+
         _sharedContext = new SharedContext();
         _sharedContext.registerWithThread();
-        
+
         _sharedContext.setUserAgentCallback(userAgent);
         _sharedContext.setCss(new StyleReference(userAgent));
         userAgent.setSharedContext(_sharedContext);
@@ -166,11 +164,11 @@ public class PdfBoxRenderer {
     /**
      * This method is constantly changing as options are added to the builder.
      */
-    PdfBoxRenderer(BaseDocument doc, UnicodeImplementation unicode, 
-            HttpStreamFactory httpStreamFactory, 
-            OutputStream os, FSUriResolver resolver, FSCache cache, SVGDrawer svgImpl,
-            PageDimensions pageSize, float pdfVersion, String replacementText, boolean testMode, FSObjectDrawerFactory objectDrawerFactory) {
-        
+    PdfBoxRenderer(BaseDocument doc, UnicodeImplementation unicode,
+                   HttpStreamFactory httpStreamFactory,
+                   OutputStream os, FSUriResolver resolver, FSCache cache, SVGDrawer svgImpl,
+                   PageDimensions pageSize, float pdfVersion, String replacementText, boolean testMode, FSObjectDrawerFactory objectDrawerFactory) {
+
         _pdfDoc = new PDDocument();
         _pdfDoc.setVersion(pdfVersion);
 
@@ -179,24 +177,24 @@ public class PdfBoxRenderer {
         _testMode = testMode;
         _outputDevice = new PdfBoxOutputDevice(DEFAULT_DOTS_PER_POINT, testMode);
         _outputDevice.setWriter(_pdfDoc);
-        
+
         PdfBoxUserAgent userAgent = new PdfBoxUserAgent(_outputDevice);
 
         if (httpStreamFactory != null) {
             userAgent.setHttpStreamFactory(httpStreamFactory);
         }
-        
+
         if (resolver != null) {
             userAgent.setUriResolver(resolver);
         }
-        
+
         if (cache != null) {
             userAgent.setExternalCache(cache);
         }
-        
+
         _sharedContext = new SharedContext();
         _sharedContext.registerWithThread();
-        
+
         _sharedContext.setUserAgentCallback(userAgent);
         _sharedContext.setCss(new StyleReference(userAgent));
         userAgent.setSharedContext(_sharedContext);
@@ -213,54 +211,51 @@ public class PdfBoxRenderer {
         _sharedContext.setDotsPerPixel(DEFAULT_DOTS_PER_PIXEL);
         _sharedContext.setPrint(true);
         _sharedContext.setInteractive(false);
-        
+
         this.getSharedContext().setDefaultPageSize(pageSize.w, pageSize.h, pageSize.isSizeInches);
-        
+
         if (replacementText != null) {
             this.getSharedContext().setReplacementText(replacementText);
         }
-        
+
         if (unicode.splitterFactory != null) {
             this._splitterFactory = unicode.splitterFactory;
         }
-        
+
         if (unicode.reorderer != null) {
             this._reorderer = unicode.reorderer;
             this._outputDevice.setBidiReorderer(_reorderer);
         }
-        
+
         if (unicode.lineBreaker != null) {
             _sharedContext.setLineBreaker(unicode.lineBreaker);
         }
-        
+
         if (unicode.charBreaker != null) {
             _sharedContext.setCharacterBreaker(unicode.charBreaker);
         }
-        
+
         if (unicode.toLowerTransformer != null) {
             _sharedContext.setUnicodeToLowerTransformer(unicode.toLowerTransformer);
         }
-        
+
         if (unicode.toUpperTransformer != null) {
             _sharedContext.setUnicodeToUpperTransformer(unicode.toUpperTransformer);
         }
-        
+
         if (unicode.toTitleTransformer != null) {
             _sharedContext.setUnicodeToTitleTransformer(unicode.toTitleTransformer);
         }
-        
+
         this._defaultTextDirection = unicode.textDirection ? BidiSplitter.RTL : BidiSplitter.LTR;
-        
+
         if (doc.html != null) {
             this.setDocumentFromStringP(doc.html, doc.baseUri);
-        }
-        else if (doc.document != null) {
+        } else if (doc.document != null) {
             this.setDocumentP(doc.document, doc.baseUri);
-        }
-        else if (doc.uri != null) {
+        } else if (doc.uri != null) {
             this.setDocumentP(doc.uri);
-        }
-        else if (doc.file != null) {
+        } else if (doc.file != null) {
             try {
                 this.setDocumentP(doc.file);
             } catch (IOException e) {
@@ -268,40 +263,40 @@ public class PdfBoxRenderer {
                 throw new RuntimeException("File IO problem", e);
             }
         }
-        
+
         this._os = os;
     }
 
     public Document getDocument() {
         return _doc;
     }
-    
+
     public PDDocument getPdfDocument() {
         return _pdfDoc;
     }
-    
+
     /**
-     * @deprecated Use builder instead.
      * @param splitterFactory
+     * @deprecated Use builder instead.
      */
     @Deprecated
     public void setBidiSplitter(BidiSplitterFactory splitterFactory) {
         this._splitterFactory = splitterFactory;
     }
-    
+
     /**
-     * @deprecated Use builder instead.
      * @param reorderer
+     * @deprecated Use builder instead.
      */
     @Deprecated
     public void setBidiReorderer(BidiReorderer reorderer) {
         this._reorderer = reorderer;
         this._outputDevice.setBidiReorderer(reorderer);
     }
-    
+
     /**
-     * @deprecated Use builder instead.
      * @param rtl
+     * @deprecated Use builder instead.
      */
     @Deprecated
     public void setDefaultTextDirection(boolean rtl) {
@@ -310,9 +305,10 @@ public class PdfBoxRenderer {
         else
             _defaultTextDirection = BidiSplitter.LTR;
     }
-    
+
     /**
      * Get the PDF-BOX font resolver. Can be used to add fonts in code.
+     *
      * @return
      */
     public PdfBoxFontResolver getFontResolver() {
@@ -338,18 +334,18 @@ public class PdfBoxRenderer {
     private void setDocumentP(Document doc, String url) {
         setDocumentP(doc, url, new XhtmlNamespaceHandler());
     }
-    
+
     private void setDocumentP(File file) throws IOException {
         File parent = file.getAbsoluteFile().getParentFile();
         setDocumentP(loadDocument(file.toURI().toURL().toExternalForm()), (parent == null ? "" : parent.toURI().toURL().toExternalForm()));
     }
-    
+
     private void setDocumentFromStringP(String content, String baseUrl) {
         InputSource is = new InputSource(new BufferedReader(new StringReader(content)));
         Document dom = XMLResource.load(is).getDocument();
         setDocumentP(dom, baseUrl);
     }
-    
+
     private void setDocumentP(Document doc, String url, NamespaceHandler nsh) {
         _doc = doc;
 
@@ -365,12 +361,12 @@ public class PdfBoxRenderer {
         _sharedContext.setNamespaceHandler(nsh);
         _sharedContext.getCss().setDocumentContext(_sharedContext, _sharedContext.getNamespaceHandler(), doc, new NullUserInterface());
         getFontResolver().importFontFaces(_sharedContext.getCss().getFontFaceRules());
-        
+
         if (_svgImpl != null) {
             _svgImpl.importFontFaceRules(_sharedContext.getCss().getFontFaceRules(), _sharedContext);
         }
     }
-    
+
     /**
      * @deprecated Use builder instead.
      */
@@ -412,8 +408,8 @@ public class PdfBoxRenderer {
     }
 
     /**
-     * @deprecated Use builder instead.
      * @param v
+     * @deprecated Use builder instead.
      */
     @Deprecated
     public void setPDFVersion(float v) {
@@ -447,10 +443,10 @@ public class PdfBoxRenderer {
         result.setFontContext(new PdfBoxFontContext());
 
         result.setOutputDevice(_outputDevice);
-        
+
         if (_reorderer != null)
             result.setBidiReorderer(_reorderer);
-        
+
         _outputDevice.setRenderingContext(result);
 
         _sharedContext.getTextRenderer().setup(result.getFontContext());
@@ -463,12 +459,12 @@ public class PdfBoxRenderer {
     private LayoutContext newLayoutContext() {
         LayoutContext result = _sharedContext.newLayoutContextInstance();
         result.setFontContext(new PdfBoxFontContext());
-        
+
         if (_splitterFactory != null)
             result.setBidiSplitterFactory(_splitterFactory);
-        
+
         if (_reorderer != null)
-        	result.setBidiReorderer(_reorderer);
+            result.setBidiReorderer(_reorderer);
 
         result.setDefaultTextDirection(_defaultTextDirection);
 
@@ -480,7 +476,7 @@ public class PdfBoxRenderer {
     public void createPDF() throws IOException {
         createPDF(_os);
     }
-    
+
     public void createPDF(OutputStream os) throws IOException {
         createPDF(os, true, 0);
     }
@@ -519,15 +515,32 @@ public class PdfBoxRenderer {
     /**
      * <B>NOTE:</B> Caller is responsible for cleaning up the OutputStream if
      * something goes wrong.
-     * 
+     *
      * @throws IOException
      */
     public void createPDF(OutputStream os, boolean finish, int initialPageNo) throws IOException {
+        renderPDF(initialPageNo);
+
+        if (finish) {
+            fireOnClose();
+            _pdfDoc.save(os);
+            _pdfDoc.close();
+        }
+    }
+
+    public PDDocument renderPDF() throws IOException {
+        return renderPDF(0);
+    }
+
+    public PDDocument renderPDF(int initialPageNo) throws IOException {
+        if (_root == null) {
+            this.layout();
+        }
         List<PageBox> pages = _root.getLayer().getPages();
 
         RenderingContext c = newRenderingContext();
         c.setInitialPageNo(initialPageNo);
-        
+
         PageBox firstPage = pages.get(0);
         Rectangle2D firstPageSize = new Rectangle2D.Float(0, 0,
                 firstPage.getWidth(c) / _dotsPerPoint,
@@ -536,7 +549,7 @@ public class PdfBoxRenderer {
         if (_pdfVersion != 0f) {
             _pdfDoc.setVersion(_pdfVersion);
         }
-        
+
         if (_pdfEncryption != null) {
             _pdfDoc.setEncryptionDictionary(_pdfEncryption);
         }
@@ -545,11 +558,7 @@ public class PdfBoxRenderer {
 
         writePDF(pages, c, firstPageSize, _pdfDoc);
 
-        if (finish) {
-            fireOnClose();
-            _pdfDoc.save(os);
-            _pdfDoc.close();
-        }
+        return _pdfDoc;
     }
 
     private void firePreOpen() {
@@ -573,11 +582,11 @@ public class PdfBoxRenderer {
     private void writePDF(List<PageBox> pages, RenderingContext c, Rectangle2D firstPageSize, PDDocument doc) throws IOException {
         _outputDevice.setRoot(_root);
         _outputDevice.start(_doc);
-        
+
         PDPage page = new PDPage(new PDRectangle((float) firstPageSize.getWidth(), (float) firstPageSize.getHeight()));
         PDPageContentStream cs = new PDPageContentStream(doc, page, AppendMode.APPEND, !_testMode);
         doc.addPage(page);
-        
+
         _outputDevice.initializePage(cs, page, (float) firstPageSize.getHeight());
         _root.getLayer().assignPagePaintingPositions(c, Layer.PAGED_MODE_PRINT);
 
@@ -585,14 +594,14 @@ public class PdfBoxRenderer {
         c.setPageCount(pageCount);
         firePreWrite(pageCount); // opportunity to adjust meta data
         setDidValues(doc); // set PDF header fields from meta data
-        
+
         for (int i = 0; i < pageCount; i++) {
             PageBox currentPage = pages.get(i);
-            
+
             c.setPage(i, currentPage);
             paintPage(c, currentPage);
             _outputDevice.finishPage();
-            
+
             if (i != pageCount - 1) {
                 PageBox nextPage = (PageBox) pages.get(i + 1);
                 Rectangle2D nextPageSize = new Rectangle2D.Float(0, 0, nextPage.getWidth(c) / _dotsPerPoint,
@@ -610,25 +619,25 @@ public class PdfBoxRenderer {
     // Sets the document information dictionary values from html metadata
     private void setDidValues(PDDocument doc) {
         PDDocumentInformation info = new PDDocumentInformation();
-        
+
         info.setCreationDate(Calendar.getInstance());
         info.setProducer("openhtmltopdf.com");
 
         for (Metadata metadata : _outputDevice.getMetadata()) {
-        	String name = metadata.getName();
-        	String content = metadata.getContent();
-        	if( content == null )
-        	    continue;
-            if( name.equals("title"))
+            String name = metadata.getName();
+            String content = metadata.getContent();
+            if (content == null)
+                continue;
+            if (name.equals("title"))
                 info.setTitle(content);
-            else if( name.equals("author"))
+            else if (name.equals("author"))
                 info.setAuthor(content);
-            else if(name.equals("subject"))
+            else if (name.equals("subject"))
                 info.setSubject(content);
-            else if(name.equals("keywords"))
+            else if (name.equals("keywords"))
                 info.setKeywords(content);
             else
-                info.setCustomMetadataValue(name,content);
+                info.setCustomMetadataValue(name, content);
         }
 
         doc.setDocumentInformation(info);
@@ -656,26 +665,27 @@ public class PdfBoxRenderer {
 
         _outputDevice.setClip(working);
     }
-/* TODO : Metadata
-    private void provideMetadataToPage(PdfWriter writer, PageBox page) throws IOException {
-        byte[] metadata = null;
-        if (page.getMetadata() != null) {
-            try {
-                String metadataBody = stringfyMetadata(page.getMetadata());
-                if (metadataBody != null) {
-                    metadata = createXPacket(stringfyMetadata(page.getMetadata())).getBytes("UTF-8");
+
+    /* TODO : Metadata
+        private void provideMetadataToPage(PdfWriter writer, PageBox page) throws IOException {
+            byte[] metadata = null;
+            if (page.getMetadata() != null) {
+                try {
+                    String metadataBody = stringfyMetadata(page.getMetadata());
+                    if (metadataBody != null) {
+                        metadata = createXPacket(stringfyMetadata(page.getMetadata())).getBytes("UTF-8");
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    // Can't happen
+                    throw new RuntimeException(e);
                 }
-            } catch (UnsupportedEncodingException e) {
-                // Can't happen
-                throw new RuntimeException(e);
+            }
+
+            if (metadata != null) {
+                writer.setPageXmpMetadata(metadata);
             }
         }
-
-        if (metadata != null) {
-            writer.setPageXmpMetadata(metadata);
-        }
-    }
-*/
+    */
     private String stringfyMetadata(Element element) {
         Element target = getFirstChildElement(element);
         if (target == null) {
@@ -766,7 +776,7 @@ public class PdfBoxRenderer {
     public void setListener(PDFCreationListener listener) {
         _listener = listener;
     }
-    
+
     /**
      * Cleanup thread resources. MUST be called after finishing with the renderer.
      */
