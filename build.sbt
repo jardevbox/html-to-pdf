@@ -1,6 +1,4 @@
-import ReleaseTransformations._
-
-name := "html-to-pdf"
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 lazy val commonSettings = Seq(
   organization := "de.envisia.pdf",
@@ -46,6 +44,12 @@ lazy val `html-to-pdf-pdfbox` = (project in file("html-to-pdf-pdfbox"))
     .dependsOn(`html-to-pdf-core`)
 
 lazy val `html-to-pdf-root` = (project in file("."))
+    .settings(
+      publishArtifact := false,
+      // The above is enough for Maven repos but it doesn't prevent publishing of ivy.xml files
+      publish := {},
+      publishLocal := {}
+    )
     .aggregate(
       `html-to-pdf-core`,
       `html-to-pdf-pdfbox`,
@@ -54,15 +58,15 @@ lazy val `html-to-pdf-root` = (project in file("."))
 
 // releasePublishArtifactsAction := PgpKeys.publishSigned.value // : Signed Publish
 releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,              // : ReleaseStep
-  inquireVersions,                        // : ReleaseStep
-  runClean,                               // : ReleaseStep
-  runTest,                                // : ReleaseStep
-  setReleaseVersion,                      // : ReleaseStep
-  commitReleaseVersion,                   // : ReleaseStep, performs the initial git checks
-  tagRelease,                             // : ReleaseStep
-  publishArtifacts,                       // : ReleaseStep, checks whether `publishTo` is properly set up
-  setNextVersion,                         // : ReleaseStep
-  commitNextVersion,                      // : ReleaseStep
-  pushChanges                             // : ReleaseStep, also checks that an upstream branch is properly configured
+  checkSnapshotDependencies, // : ReleaseStep
+  inquireVersions, // : ReleaseStep
+  runClean, // : ReleaseStep
+  runTest, // : ReleaseStep
+  setReleaseVersion, // : ReleaseStep
+  commitReleaseVersion, // : ReleaseStep, performs the initial git checks
+  tagRelease, // : ReleaseStep
+  publishArtifacts, // : ReleaseStep, checks whether `publishTo` is properly set up
+  setNextVersion, // : ReleaseStep
+  commitNextVersion, // : ReleaseStep
+  pushChanges // : ReleaseStep, also checks that an upstream branch is properly configured
 )
