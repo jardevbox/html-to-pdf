@@ -22,7 +22,6 @@ package com.openhtmltopdf.css.newmatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,10 +33,7 @@ import java.util.TreeMap;
 import com.openhtmltopdf.css.extend.AttributeResolver;
 import com.openhtmltopdf.css.extend.StylesheetFactory;
 import com.openhtmltopdf.css.extend.TreeResolver;
-import com.openhtmltopdf.css.sheet.MediaRule;
-import com.openhtmltopdf.css.sheet.PageRule;
-import com.openhtmltopdf.css.sheet.Ruleset;
-import com.openhtmltopdf.css.sheet.Stylesheet;
+import com.openhtmltopdf.css.sheet.*;
 import com.openhtmltopdf.util.Util;
 import com.openhtmltopdf.util.XRLog;
 
@@ -47,7 +43,7 @@ import com.openhtmltopdf.util.XRLog;
  */
 public class Matcher {
 
-    Mapper docMapper;
+    private Mapper docMapper;
     private AttributeResolver _attRes;
     private TreeResolver _treeRes;
     private StylesheetFactory _styleFactory;
@@ -60,8 +56,8 @@ public class Matcher {
     private Set _focusElements;
     private Set _visitElements;
     
-    private List _pageRules;
-    private List _fontFaceRules;
+    private List<PageRule> _pageRules;
+    private List<FontFaceRule> _fontFaceRules;
     
     public Matcher(
             TreeResolver tr, AttributeResolver ar, StylesheetFactory factory, List stylesheets, String medium) {
@@ -70,8 +66,8 @@ public class Matcher {
         _attRes = ar;
         _styleFactory = factory;
         
-        _pageRules = new ArrayList();
-        _fontFaceRules = new ArrayList();
+        _pageRules = new ArrayList<>();
+        _fontFaceRules = new ArrayList<>();
         docMapper = createDocumentMapper(stylesheets, medium);
     }
     
@@ -106,9 +102,7 @@ public class Matcher {
         List props = new ArrayList();
         Map marginBoxes = new HashMap();
 
-        for (Iterator i = _pageRules.iterator(); i.hasNext(); ) {
-            PageRule pageRule = (PageRule)i.next();
-            
+        for (PageRule pageRule : _pageRules) {
             if (pageRule.applies(pageName, pseudoPage)) {
                 props.addAll(pageRule.getRuleset().getPropertyDeclarations());
                 marginBoxes.putAll(pageRule.getMarginBoxes());
@@ -181,7 +175,7 @@ public class Matcher {
                     }
                 } else if (obj instanceof PageRule) {
                     ((PageRule)obj).setPos(++pCount);
-                    _pageRules.add(obj);
+                    _pageRules.add((PageRule)obj);
                 } else if (obj instanceof MediaRule) {
                     MediaRule mediaRule = (MediaRule)obj;
                     if (mediaRule.matches(medium)) {
@@ -200,18 +194,16 @@ public class Matcher {
             _fontFaceRules.addAll(stylesheet.getFontFaceRules());
         }
         
-        Collections.sort(_pageRules, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                PageRule p1 = (PageRule)o1;
-                PageRule p2 = (PageRule)o2;
-                
-                if (p1.getOrder() - p2.getOrder() < 0) {
-                    return -1;
-                } else if (p1.getOrder() == p2.getOrder()) {
-                    return 0;
-                } else {
-                    return 1;
-                }
+        _pageRules.sort((o1, o2) -> {
+            PageRule p1 = (PageRule) o1;
+            PageRule p2 = (PageRule) o2;
+
+            if (p1.getOrder() - p2.getOrder() < 0) {
+                return -1;
+            } else if (p1.getOrder() == p2.getOrder()) {
+                return 0;
+            } else {
+                return 1;
             }
         });
     }
